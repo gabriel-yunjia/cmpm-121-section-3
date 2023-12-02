@@ -10,6 +10,9 @@ export default class Play extends Phaser.Scene {
   starfield?: Phaser.GameObjects.TileSprite;
   spinner?: Phaser.GameObjects.Shape;
   isFiring = false;
+  ship1?: Phaser.GameObjects.Shape;
+  ship2?: Phaser.GameObjects.Shape;
+  ship3?: Phaser.GameObjects.Shape;
 
   rotationSpeed = Phaser.Math.PI2 / 20; // radians per millisecond
 
@@ -43,9 +46,25 @@ export default class Play extends Phaser.Scene {
       .setOrigin(0, 0);
 
     this.spinner = this.add.rectangle(100, 450, 30, 30, 0xff0000);
+    this.ship1 = this.add.rectangle(640, 50, 50, 30, 0xffff00);
+    this.ship2 = this.add.rectangle(600, 100, 50, 30, 0xffff00);
+    this.ship3 = this.add.rectangle(560, 150, 50, 30, 0xffff00);
   }
 
   update(_timeMs: number, delta: number) {
+    this.ship1!.x -= delta * this.rotationSpeed;
+    if (this.ship1!.x < 0) {
+      this.ship1!.x = 640;
+    }
+    this.ship2!.x -= delta * this.rotationSpeed;
+    if (this.ship2!.x < 0) {
+      this.ship2!.x = 640;
+    }
+    this.ship3!.x -= delta * this.rotationSpeed;
+    if (this.ship3!.x < 0) {
+      this.ship3!.x = 640;
+    }
+
     this.starfield!.tilePositionX -= 4;
 
     if (this.fire!.isDown) {
@@ -59,6 +78,7 @@ export default class Play extends Phaser.Scene {
       // Check if the spinner has reached the top of the screen
       if (this.spinner!.y <= 0) {
         this.isFiring = false; // Stop moving upward when reaching the top
+        this.spinner!.y = 450; // Teleport back down after reached the top
       }
     } else {
       // Allowing left and right movement when not firing
@@ -66,6 +86,7 @@ export default class Play extends Phaser.Scene {
         this.spinner!.x -= delta * this.rotationSpeed;
         this.spinner!.x = Phaser.Math.Clamp(this.spinner!.x, 0, 640);
       }
+
       if (this.right!.isDown) {
         this.spinner!.x += delta * this.rotationSpeed;
         this.spinner!.x = Phaser.Math.Clamp(this.spinner!.x, 0, 640);

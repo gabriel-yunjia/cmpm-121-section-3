@@ -9,8 +9,9 @@ export default class Play extends Phaser.Scene {
 
   starfield?: Phaser.GameObjects.TileSprite;
   spinner?: Phaser.GameObjects.Shape;
+  isFiring = false;
 
-  rotationSpeed = Phaser.Math.PI2 / 1000; // radians per millisecond
+  rotationSpeed = Phaser.Math.PI2 / 20; // radians per millisecond
 
   constructor() {
     super("play");
@@ -41,26 +42,34 @@ export default class Play extends Phaser.Scene {
       )
       .setOrigin(0, 0);
 
-    this.spinner = this.add.rectangle(100, 100, 50, 50, 0xff0000);
+    this.spinner = this.add.rectangle(100, 450, 30, 30, 0xff0000);
   }
 
   update(_timeMs: number, delta: number) {
     this.starfield!.tilePositionX -= 4;
 
-    if (this.left!.isDown) {
-      this.spinner!.rotation -= delta * this.rotationSpeed;
-    }
-    if (this.right!.isDown) {
-      this.spinner!.rotation += delta * this.rotationSpeed;
+    if (this.fire!.isDown) {
+      this.isFiring = true;
     }
 
-    if (this.fire!.isDown) {
-      this.tweens.add({
-        targets: this.spinner,
-        scale: { from: 1.5, to: 1 },
-        duration: 300,
-        ease: Phaser.Math.Easing.Sine.Out,
-      });
+    if (this.isFiring) {
+      // Move the spinner upward
+      this.spinner!.y -= delta * this.rotationSpeed;
+
+      // Check if the spinner has reached the top of the screen
+      if (this.spinner!.y <= 0) {
+        this.isFiring = false; // Stop moving upward when reaching the top
+      }
+    } else {
+      // Allowing left and right movement when not firing
+      if (this.left!.isDown) {
+        this.spinner!.x -= delta * this.rotationSpeed;
+        this.spinner!.x = Phaser.Math.Clamp(this.spinner!.x, 0, 640);
+      }
+      if (this.right!.isDown) {
+        this.spinner!.x += delta * this.rotationSpeed;
+        this.spinner!.x = Phaser.Math.Clamp(this.spinner!.x, 0, 640);
+      }
     }
   }
 }
